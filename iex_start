@@ -1,0 +1,9 @@
+#! /bin/bash
+
+if [ -z "$1" ]
+    then
+        echo "Must pass in a value for -sname like 'node3434'"
+        exit 1
+fi
+
+iex --erl "-pa _build/dev/lib/caravan/ebin -proto_dist Elixir.Caravan.Epmd.Dist -start_epmd false -epmd_module Elixir.Caravan.Epmd.Client" --cookie "foocookie" --sname "$1" -S mix

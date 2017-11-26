@@ -1,0 +1,5 @@
+-pa _build/dev/lib/caravan/ebin 
+-proto_dist Elixir.Caravan.Epmd.Dist 
+-start_epmd false 
+-epmd_module Elixir.Caravan.Epmd.Client" 
+#--sname "$1" -S mix
