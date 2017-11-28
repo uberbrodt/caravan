@@ -25,6 +25,8 @@ The second part utilizes [libcluster](https://github.com/bitwalker/libcluster)
 to help with forming clusters automatically based on DNS SRV queries to
 Consul.
 
+View extended documentation on [Hex](https://hexdocs.pm/caravan/0.5.0).
+
 **Note:** Caravan is still pre 1.0, so there may be breaking changes until
 that time.
 
