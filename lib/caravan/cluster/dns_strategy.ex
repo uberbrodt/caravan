@@ -104,7 +104,9 @@ defmodule Caravan.Cluster.DnsStrategy do
   end
 
   defp connect(nodes, %State{connect: c, list_nodes: l, topology: t}) do
-    debug t, "found nodes #{inspect(nodes)}"
+    if Application.get_env(:caravan, :debug, false) do
+      debug t, "found nodes #{inspect(nodes)}"
+    end
     Cluster.Strategy.connect_nodes(t, c, l, nodes)
   end
 
