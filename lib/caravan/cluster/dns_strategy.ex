@@ -85,6 +85,17 @@ defmodule Caravan.Cluster.DnsStrategy do
     {:ok, state}
   end
 
+  def handle_info(:poll, %State{meta: {pi, q, node_sname, [], dns}} = state) do
+    q
+    |> dns.get_nodes()
+    |> create_node_names(node_sname)
+    |> remove_self()
+    |> connect(state)
+
+    Process.send_after(self(), :poll, pi)
+    {:noreply, state}
+  end
+
   def handle_info(:poll, %State{meta: {pi, q, node_sname, nameservers, dns}} = state) do
     q
     |> dns.get_nodes(nameservers: nameservers)
