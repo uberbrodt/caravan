@@ -14,7 +14,7 @@ defmodule Caravan.Cluster.DnsStrategyTest do
       node_sname: "connectnodetest"
     ]
 
-    {:ok, pid} = start_cluster_strategy(create_config(config))
+    {:ok, _pid} = start_cluster_strategy(create_config(config))
     :timer.sleep(100)
   end
 
@@ -31,7 +31,7 @@ defmodule Caravan.Cluster.DnsStrategyTest do
   end
 
   defp create_config(opts) do
-    config = [
+    [
       topology: :caravan_test,
       connect: Keyword.get(opts, :connect, {:net_kernel, :connect, []}),
       disconnect: {:net_kernel, :disconnect, []},

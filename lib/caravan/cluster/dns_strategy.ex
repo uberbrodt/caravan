@@ -38,7 +38,7 @@ defmodule Caravan.Cluster.DnsStrategy do
           #forms the base of the node name. App name is a good one.
           node_sname: "profile-service",
           #If you need to override the default DNS server. Must be an ip port
-          #combo like below. Defaults to {"127.0.0.1", "53"}
+          #combo like below. Defaults to [] (dns are inherited from system)
           nameservers: [{"10.0.183.34", "8700"}],
           #The poll interval for the Consul service in milliseconds. Defaults to 5s
           poll_interval: 5_000
@@ -85,6 +85,17 @@ defmodule Caravan.Cluster.DnsStrategy do
     {:ok, state}
   end
 
+  def handle_info(:poll, %State{meta: {pi, q, node_sname, [], dns}} = state) do
+    q
+    |> dns.get_nodes([])
+    |> create_node_names(node_sname)
+    |> remove_self()
+    |> connect(state)
+
+    Process.send_after(self(), :poll, pi)
+    {:noreply, state}
+  end
+
   def handle_info(:poll, %State{meta: {pi, q, node_sname, nameservers, dns}} = state) do
     q
     |> dns.get_nodes(nameservers: nameservers)
@@ -115,7 +126,7 @@ defmodule Caravan.Cluster.DnsStrategy do
   end
 
   defp process_dns_servers([]) do
-    [{{127, 0, 0, 1}, 53}]
+    []
   end
 
   # Conform :ip datatype has a tuple of binaries for ip and port, so handle it
