@@ -27,14 +27,17 @@ defmodule Caravan.Epmd do
     # name.  If there is no such number, the port is 4370.
     #
     # Also handle the case when no hostname was specified.
-    node_name = Regex.replace ~r/@.*$/, name, ""
+    node_name = Regex.replace(~r/@.*$/, name, "")
+
     port =
-      case Regex.run ~r/[0-9]+$/, node_name do
+      case Regex.run(~r/[0-9]+$/, node_name) do
         nil ->
           4370
+
         [offset_as_string] ->
-          String.to_integer offset_as_string
+          String.to_integer(offset_as_string)
       end
+
     port
   end
 end

@@ -41,6 +41,5 @@ defmodule Caravan.Epmd.Client do
     # Since we don't have epmd, we don't really know what other nodes
     # there are.
     {:error, :address}
-end
-
+  end
 end

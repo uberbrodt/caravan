@@ -67,15 +67,18 @@ defmodule Caravan.Cluster.DnsStrategy do
       connect: Keyword.fetch!(opts, :connect),
       disconnect: Keyword.fetch!(opts, :disconnect),
       list_nodes: Keyword.fetch!(opts, :list_nodes),
-      config: Keyword.fetch!(opts, :config),
+      config: Keyword.fetch!(opts, :config)
     }
+
     consul_svc = Keyword.fetch!(state.config, :consul_service)
     node_sname = Keyword.fetch!(state.config, :node_sname)
     poll_interval = Keyword.get(state.config, :poll_interval, @default_poll_interval)
-    nameservers = Keyword.get(state.config, :nameservers, [])
-    |> process_dns_servers()
-    dns_client = Keyword.get(state.config, :dns_client, Caravan.DnsClient)
 
+    nameservers =
+      Keyword.get(state.config, :nameservers, [])
+      |> process_dns_servers()
+
+    dns_client = Keyword.get(state.config, :dns_client, Caravan.DnsClient)
 
     state = %{state | :meta => {poll_interval, consul_svc, node_sname, nameservers, dns_client}}
     Process.send_after(self(), :poll, 0)
@@ -84,7 +87,7 @@ defmodule Caravan.Cluster.DnsStrategy do
 
   def handle_info(:poll, %State{meta: {pi, q, node_sname, nameservers, dns}} = state) do
     q
-    |> dns.get_nodes([nameservers: nameservers])
+    |> dns.get_nodes(nameservers: nameservers)
     |> create_node_names(node_sname)
     |> remove_self()
     |> connect(state)
@@ -98,35 +101,40 @@ defmodule Caravan.Cluster.DnsStrategy do
   end
 
   defp create_node_names(dns_records, node_name) do
-    Enum.map(dns_records, fn ({port, host}) ->
+    Enum.map(dns_records, fn {port, host} ->
       :"#{node_name}-#{port}@#{host}"
     end)
   end
 
   defp connect(nodes, %State{connect: c, list_nodes: l, topology: t}) do
     if Application.get_env(:caravan, :debug, false) do
-      debug t, "found nodes #{inspect(nodes)}"
+      debug(t, "found nodes #{inspect(nodes)}")
     end
+
     Cluster.Strategy.connect_nodes(t, c, l, nodes)
   end
 
   defp process_dns_servers([]) do
-    [{{127,0,0,1}, 53}]
+    [{{127, 0, 0, 1}, 53}]
   end
 
-  #Conform :ip datatype has a tuple of binaries for ip and port, so handle it
-  #here to send to :inet_res
+  # Conform :ip datatype has a tuple of binaries for ip and port, so handle it
+  # here to send to :inet_res
   defp process_dns_servers(servers_list) when is_list(servers_list) do
-    Enum.map(servers_list, fn ({ip, port}) ->
-      ip_tuple = ip
-      |> String.split(".")
-      |> Enum.map(&(String.to_integer/1))
-      |> List.to_tuple()
-      port_int = case port do
-        p when is_binary(p) -> String.to_integer(p)
-        p when is_integer(p) -> p
-      end
-      {ip_tuple , port_int}
+    Enum.map(servers_list, fn {ip, port} ->
+      ip_tuple =
+        ip
+        |> String.split(".")
+        |> Enum.map(&String.to_integer/1)
+        |> List.to_tuple()
+
+      port_int =
+        case port do
+          p when is_binary(p) -> String.to_integer(p)
+          p when is_integer(p) -> p
+        end
+
+      {ip_tuple, port_int}
     end)
   end
 end

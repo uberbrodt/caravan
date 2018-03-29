@@ -7,18 +7,19 @@ defmodule Caravan.Epmd.Dist_dist do
   `-proto_dist Caravan.Epmd.Dist`
   """
   alias Caravan.Epmd
+
   def listen(name) do
     # Here we figure out what port we want to listen on.
 
-    port = Epmd.dist_port name
+    port = Epmd.dist_port(name)
 
     # Set both "min" and "max" variables, to force the port number to
     # this one.
-    :ok = :application.set_env :kernel, :inet_dist_listen_min, port
-    :ok = :application.set_env :kernel, :inet_dist_listen_max, port
+    :ok = :application.set_env(:kernel, :inet_dist_listen_min, port)
+    :ok = :application.set_env(:kernel, :inet_dist_listen_max, port)
 
     # Finally run the real function!
-    :inet_tcp_dist.listen name
+    :inet_tcp_dist.listen(name)
   end
 
   def select(node) do
@@ -41,7 +42,7 @@ defmodule Caravan.Epmd.Dist_dist do
     :inet_tcp_dist.close(listen)
   end
 
-  def is_node_name(node)  do
+  def is_node_name(node) do
     :inet_tcp_dist.is_node_name(node)
   end
 end

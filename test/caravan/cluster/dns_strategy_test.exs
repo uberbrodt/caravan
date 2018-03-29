@@ -8,17 +8,18 @@ defmodule Caravan.Cluster.DnsStrategyTest do
   end
 
   test "connect/1 gets correct node names" do
-    config =
-      [connect: {Caravan.Cluster.DnsStrategyTest, :connect_test, []},
-       dns_client: Caravan.Cluster.DnsStrategyTest.TestClient,
-       node_sname: "connectnodetest"]
+    config = [
+      connect: {Caravan.Cluster.DnsStrategyTest, :connect_test, []},
+      dns_client: Caravan.Cluster.DnsStrategyTest.TestClient,
+      node_sname: "connectnodetest"
+    ]
+
     {:ok, pid} = start_cluster_strategy(create_config(config))
     :timer.sleep(100)
   end
 
   test "nameservers processed correctly" do
-    config =
-      [nameservers: [{"10.0.254.75", 8600}]]
+    config = [nameservers: [{"10.0.254.75", 8600}]]
     {:ok, pid} = start_cluster_strategy(create_config(config))
     :timer.sleep(100)
     assert Process.alive?(pid) == true
