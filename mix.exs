@@ -25,7 +25,8 @@ defmodule Caravan.Mixfile do
   defp deps do
     [
       {:libcluster, "~> 3.0", optional: true},
-      {:ex_doc, "~> 0.16", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:recon, "~> 2.3", optional: true}
     ]
   end
 

@@ -37,6 +37,11 @@ defmodule Caravan.Epmd.Client do
     {:port, port, version}
   end
 
+  # added for OTP-21
+  def address_please(_name, host, _address_family) do
+    :inet.getaddr(host, :inet)
+  end
+
   def names(_hostname) do
     # Since we don't have epmd, we don't really know what other nodes
     # there are.
