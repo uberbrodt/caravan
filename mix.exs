@@ -4,7 +4,7 @@ defmodule Caravan.Mixfile do
   def project do
     [
       app: :caravan,
-      version: "0.6.0",
+      version: "1.0-rc0",
       elixir: "~> 1.6",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -24,7 +24,7 @@ defmodule Caravan.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:libcluster, "~> 2.1", optional: true},
+      {:libcluster, "~> 3.0", optional: true},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false}
     ]
   end
