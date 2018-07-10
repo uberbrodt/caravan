@@ -61,14 +61,14 @@ defmodule Caravan.Cluster.DnsStrategy do
     GenServer.start_link(__MODULE__, opts)
   end
 
-  def init(opts) do
-    state = %State{
-      topology: Keyword.fetch!(opts, :topology),
-      connect: Keyword.fetch!(opts, :connect),
-      disconnect: Keyword.fetch!(opts, :disconnect),
-      list_nodes: Keyword.fetch!(opts, :list_nodes),
-      config: Keyword.fetch!(opts, :config)
-    }
+  def init([state]) do
+    # state = %State{
+    #   topology: Keyword.fetch!(opts, :topology),
+    #   connect: Keyword.fetch!(opts, :connect),
+    #   disconnect: Keyword.fetch!(opts, :disconnect),
+    #   list_nodes: Keyword.fetch!(opts, :list_nodes),
+    #   config: Keyword.fetch!(opts, :config)
+    # }
 
     consul_svc = Keyword.fetch!(state.config, :consul_service)
     node_sname = Keyword.fetch!(state.config, :node_sname)
