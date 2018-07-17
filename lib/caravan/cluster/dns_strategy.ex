@@ -68,18 +68,18 @@ defmodule Caravan.Cluster.DnsStrategy do
   end
 
   @impl GenServer
-  def handle_info(
-        :poll,
-        %Config{query: q, poll_interval: pi, node_sname: node_sname, dns_client: dns} = state
-      ) do
+  def handle_info(:poll, %{poll_interval: pi} = state) do
+    find_nodes(state)
+    Process.send_after(self(), :poll, pi)
+    {:noreply, state}
+  end
+
+  def find_nodes(%Config{query: q, node_sname: node_sname, dns_client: dns} = state) do
     q
     |> dns.get_nodes()
     |> create_node_names(node_sname)
     |> remove_self()
     |> connect(state)
-
-    Process.send_after(self(), :poll, pi)
-    {:noreply, state}
   end
 
   defp remove_self(node_list) do

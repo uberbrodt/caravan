@@ -1,9 +1,13 @@
 defmodule Caravan.Cluster.DnsStrategyTest do
   use ExUnit.Case
   alias Cluster.Strategy.State
+  alias Caravan.Cluster.Config
+  alias Caravan.Cluster.DnsStrategy
 
   defmodule TestClient do
-    def get_nodes(name, _opts) when is_binary(name) do
+    @behaviour Caravan.DnsClient
+
+    def get_nodes(name) when is_binary(name) do
       [{7000, "somenode.foo.example.net"}]
     end
   end
@@ -41,6 +45,20 @@ defmodule Caravan.Cluster.DnsStrategyTest do
     ]
 
     {:ok, _} = start_supervised({Cluster.Supervisor, [config, []]})
+  end
+
+  @tag capture_log: true
+  test "find_nodes/1" do
+    config = %Caravan.Cluster.Config{
+      topology: :caravan,
+      connect: {Caravan.Cluster.DnsStrategyTest, :connect_test, []},
+      list_nodes: {:erlang, :nodes, [:connected]},
+      dns_client: Caravan.Cluster.DnsStrategyTest.TestClient,
+      node_sname: "connectnodetest",
+      query: "fooo"
+    }
+
+    assert :ok == DnsStrategy.find_nodes(config)
   end
 
   def connect_test(node) do
