@@ -30,7 +30,7 @@ defmodule Caravan.Cluster.Config do
     query = Keyword.fetch!(config, :query)
     node_sname = Keyword.fetch!(config, :node_sname)
     poll_interval = Keyword.get(config, :poll_interval, @default_poll_interval)
-    dns_client = Keyword.get(config, :dns_client, Caravan.DnsClient)
+    dns_client = Keyword.get(config, :dns_client, Caravan.DnsClient.InetRes)
 
     %__MODULE__{
       topology: topo,

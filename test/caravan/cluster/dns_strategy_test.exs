@@ -35,7 +35,7 @@ defmodule Caravan.Cluster.DnsStrategyTest do
           query: Keyword.get(opts, :consul_service, "example.net.consul"),
           node_sname: Keyword.get(opts, :node_sname, "somenode"),
           poll_interval: Keyword.get(opts, :poll_interval, 50_000),
-          dns_client: Keyword.get(opts, :dns_client, Caravan.DnsClient)
+          dns_client: Keyword.get(opts, :dns_client, Caravan.DnsClient.InetRes)
         ]
       ]
     ]

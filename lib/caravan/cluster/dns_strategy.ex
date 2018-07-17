@@ -73,7 +73,7 @@ defmodule Caravan.Cluster.DnsStrategy do
         %Config{query: q, poll_interval: pi, node_sname: node_sname, dns_client: dns} = state
       ) do
     q
-    |> dns.get_nodes([])
+    |> dns.get_nodes()
     |> create_node_names(node_sname)
     |> remove_self()
     |> connect(state)
