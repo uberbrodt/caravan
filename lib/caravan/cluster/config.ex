@@ -2,8 +2,13 @@ defmodule Caravan.Cluster.Config do
   @moduledoc """
   Config for `Caravan.Cluster.DnsStrategy.`
 
-    - query: The name to query for SRV records. Something like:  'prod-likes-service-dist-consul`
-    - name_sname: the base of a node name. App name is a good candidate.
+    - topology: topology name passed to `Cluster.Strategy.connect_nodes/4`
+    - query: The name to query for SRV records. Something like:  `prod-likes-service-dist-consul`
+    - dns_client: module implementing `Caravan.DnsClient`. Defaults to `Caravan.DnsClient.InetRes`.
+    - node_sname: the base of a node name. App name is a good candidate.
+    - connect: Override to use a different transport mechanism. Uses :libcluster defaults otherwise.
+    - disconnect: Override to use a different transport mechanism. Uses :libcluster defaults otherwise.
+    - list_nodes: Override to use a different transport mechanism. Uses :libcluster defaults otherwise.
     - poll_interval: poll the dns server on this interval. Defaults to 5_000
   """
 

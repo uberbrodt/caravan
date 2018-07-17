@@ -1,11 +1,12 @@
 defmodule Caravan.Cluster.DnsStrategy do
   @moduledoc """
   Implements a libcluster strategy for node distribution based on Consul DNS.  By
-  default it uses `:inet_res` to query the nameservers, though it can be
-  overridden.
+  default it uses `:inet_res` to query the nameservers, though it can be configured to use any
+  module conforming to the `Caravan.DnsClient` behaviour.
 
   ## Prerequisites
-  First things first, is that you'll need to have Consul and Nomad setup. You'll
+  First things first, is that you'll need to have Consul setup and configured as a nameserver either
+  in your hosts file or via an [erl_inetrc file](http://erlang.org/doc/apps/erts/inet_cfg.html) You'll
   need to create a service that will return SRV records with the hostname and
   distribution port. The [Consul documentation](https://www.consul.io/docs/agent/dns.html#standard-lookup)
   has directions on what needs to be setup and how to test with `dig`.
@@ -34,12 +35,9 @@ defmodule Caravan.Cluster.DnsStrategy do
         strategy: Caravan.Cluster.DnsStrategy,
         config: [
           #service name that returns the distribution port in a SRV record
-          consul_service: "likes-service-dist.service.consul",
+          query: "likes-service-dist.service.consul",
           #forms the base of the node name. App name is a good one.
           node_sname: "profile-service",
-          #If you need to override the default DNS server. Must be an ip port
-          #combo like below. Defaults to [] (dns are inherited from system)
-          nameservers: [{"10.0.183.34", "8700"}],
           #The poll interval for the Consul service in milliseconds. Defaults to 5s
           poll_interval: 5_000
           #The module of the DNS client to use.

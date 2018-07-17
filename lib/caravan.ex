@@ -27,10 +27,6 @@ defmodule Caravan do
   to help with forming clusters automatically based on DNS SRV queries to
   Consul.
 
-  **Note:** Caravan is still pre 1.0, so there may be breaking changes until
-  that time.
-
-
   ## Getting started with custom Erlang distribution
 
   Erlang has some command line options to overwrite the default distribution

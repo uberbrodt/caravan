@@ -52,6 +52,5 @@ defmodule Caravan.Mixfile do
     ]
   end
 
-  defp description, do: "Tools for running Distributed Elixir with Nomad and
-  Consul"
+  defp description, do: "Tools for running Distributed Elixir with Nomad and Consul"
 end
