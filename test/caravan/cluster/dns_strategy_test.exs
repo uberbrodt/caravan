@@ -1,5 +1,6 @@
 defmodule Caravan.Cluster.DnsStrategyTest do
   use ExUnit.Case
+  alias Cluster.Strategy.State
 
   defmodule TestClient do
     def get_nodes(name, _opts) when is_binary(name) do
@@ -7,46 +8,43 @@ defmodule Caravan.Cluster.DnsStrategyTest do
     end
   end
 
+  @tag capture_log: true
   test "connect/1 gets correct node names" do
-    config = [
+    config = %State{
+      topology: :caravan,
       connect: {Caravan.Cluster.DnsStrategyTest, :connect_test, []},
-      dns_client: Caravan.Cluster.DnsStrategyTest.TestClient,
-      node_sname: "connectnodetest"
-    ]
+      list_nodes: {:erlang, :nodes, [:connected]},
+      config: [
+        dns_client: Caravan.Cluster.DnsStrategyTest.TestClient,
+        node_sname: "connectnodetest",
+        query: "fooo"
+      ]
+    }
 
-    {:ok, _pid} = start_cluster_strategy(create_config(config))
+    {:ok, _} = start_supervised({Caravan.Cluster.DnsStrategy, [config]})
     :timer.sleep(100)
   end
 
-  test "nameservers processed correctly" do
-    config = [nameservers: [{"10.0.254.75", 8600}]]
-    {:ok, pid} = start_cluster_strategy(create_config(config))
-    :timer.sleep(100)
-    assert Process.alive?(pid) == true
+  test "start_link/1" do
+    opts = []
+
+    config = [
+      caravan: [
+        strategy: Caravan.Cluster.DnsStrategy,
+        config: [
+          query: Keyword.get(opts, :consul_service, "example.net.consul"),
+          node_sname: Keyword.get(opts, :node_sname, "somenode"),
+          poll_interval: Keyword.get(opts, :poll_interval, 50_000),
+          dns_client: Keyword.get(opts, :dns_client, Caravan.DnsClient)
+        ]
+      ]
+    ]
+
+    {:ok, _} = start_supervised({Cluster.Supervisor, [config, []]})
   end
 
   def connect_test(node) do
     assert :"connectnodetest-7000@somenode.foo.example.net" == node
     true
-  end
-
-  defp create_config(opts) do
-    [
-      topology: :caravan_test,
-      connect: Keyword.get(opts, :connect, {:net_kernel, :connect, []}),
-      disconnect: {:net_kernel, :disconnect, []},
-      list_nodes: {:erlang, :nodes, [:connected]},
-      config: [
-        consul_service: Keyword.get(opts, :consul_service, "example.net.consul"),
-        node_sname: Keyword.get(opts, :node_sname, "somenode"),
-        poll_interval: Keyword.get(opts, :poll_interval, 50_000),
-        nameservers: Keyword.get(opts, :nameservers, []),
-        dns_client: Keyword.get(opts, :dns_client, Caravan.DnsClient)
-      ]
-    ]
-  end
-
-  defp start_cluster_strategy(config) do
-    start_supervised({Caravan.Cluster.DnsStrategy, config})
   end
 end

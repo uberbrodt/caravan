@@ -54,51 +54,26 @@ defmodule Caravan.Cluster.DnsStrategy do
   use Cluster.Strategy
   import Cluster.Logger
   alias Cluster.Strategy.State
+  alias Caravan.Cluster.Config
 
-  @default_poll_interval 5_000
-
-  def start_link(opts) do
-    GenServer.start_link(__MODULE__, opts)
+  @impl Cluster.Strategy
+  def start_link([%State{} = s]) do
+    GenServer.start_link(__MODULE__, Config.new(s))
   end
 
-  def init([state]) do
-    # state = %State{
-    #   topology: Keyword.fetch!(opts, :topology),
-    #   connect: Keyword.fetch!(opts, :connect),
-    #   disconnect: Keyword.fetch!(opts, :disconnect),
-    #   list_nodes: Keyword.fetch!(opts, :list_nodes),
-    #   config: Keyword.fetch!(opts, :config)
-    # }
-
-    consul_svc = Keyword.fetch!(state.config, :consul_service)
-    node_sname = Keyword.fetch!(state.config, :node_sname)
-    poll_interval = Keyword.get(state.config, :poll_interval, @default_poll_interval)
-
-    nameservers =
-      Keyword.get(state.config, :nameservers, [])
-      |> process_dns_servers()
-
-    dns_client = Keyword.get(state.config, :dns_client, Caravan.DnsClient)
-
-    state = %{state | :meta => {poll_interval, consul_svc, node_sname, nameservers, dns_client}}
+  @impl GenServer
+  def init(%Config{} = c) do
     Process.send_after(self(), :poll, 0)
-    {:ok, state}
+    {:ok, c}
   end
 
-  def handle_info(:poll, %State{meta: {pi, q, node_sname, [], dns}} = state) do
+  @impl GenServer
+  def handle_info(
+        :poll,
+        %Config{query: q, poll_interval: pi, node_sname: node_sname, dns_client: dns} = state
+      ) do
     q
     |> dns.get_nodes([])
-    |> create_node_names(node_sname)
-    |> remove_self()
-    |> connect(state)
-
-    Process.send_after(self(), :poll, pi)
-    {:noreply, state}
-  end
-
-  def handle_info(:poll, %State{meta: {pi, q, node_sname, nameservers, dns}} = state) do
-    q
-    |> dns.get_nodes(nameservers: nameservers)
     |> create_node_names(node_sname)
     |> remove_self()
     |> connect(state)
@@ -117,35 +92,11 @@ defmodule Caravan.Cluster.DnsStrategy do
     end)
   end
 
-  defp connect(nodes, %State{connect: c, list_nodes: l, topology: t}) do
+  defp connect(nodes, %Config{connect: c, list_nodes: l, topology: t}) do
     if Application.get_env(:caravan, :debug, false) do
       debug(t, "found nodes #{inspect(nodes)}")
     end
 
     Cluster.Strategy.connect_nodes(t, c, l, nodes)
-  end
-
-  defp process_dns_servers([]) do
-    []
-  end
-
-  # Conform :ip datatype has a tuple of binaries for ip and port, so handle it
-  # here to send to :inet_res
-  defp process_dns_servers(servers_list) when is_list(servers_list) do
-    Enum.map(servers_list, fn {ip, port} ->
-      ip_tuple =
-        ip
-        |> String.split(".")
-        |> Enum.map(&String.to_integer/1)
-        |> List.to_tuple()
-
-      port_int =
-        case port do
-          p when is_binary(p) -> String.to_integer(p)
-          p when is_integer(p) -> p
-        end
-
-      {ip_tuple, port_int}
-    end)
   end
 end
