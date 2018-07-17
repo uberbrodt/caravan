@@ -10,7 +10,14 @@ defmodule Caravan.Mixfile do
       description: description(),
       package: package(),
       docs: docs(),
-      deps: deps()
+      deps: deps(),
+      test_coverage: [tool: ExCoveralls],
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.detail": :test,
+        "coveralls.post": :test,
+        "coveralls.html": :test
+      ]
     ]
   end
 
@@ -24,8 +31,9 @@ defmodule Caravan.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:libcluster, "~> 3.0", optional: true},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.8", only: :test},
+      {:libcluster, "~> 3.0", optional: true},
       {:recon, "~> 2.3", optional: true}
     ]
   end
