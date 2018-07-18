@@ -49,7 +49,7 @@ defmodule Caravan.Cluster.DnsStrategyTest do
 
   @tag capture_log: true
   test "find_nodes/1" do
-    config = %Caravan.Cluster.Config{
+    config = %Config{
       topology: :caravan,
       connect: {Caravan.Cluster.DnsStrategyTest, :connect_test, []},
       list_nodes: {:erlang, :nodes, [:connected]},

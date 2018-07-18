@@ -6,13 +6,24 @@ defmodule Caravan.Cluster.Config do
     - query: The name to query for SRV records. Something like:  `prod-likes-service-dist-consul`
     - dns_client: module implementing `Caravan.DnsClient`. Defaults to `Caravan.DnsClient.InetRes`.
     - node_sname: the base of a node name. App name is a good candidate.
-    - connect: Override to use a different transport mechanism. Uses :libcluster defaults otherwise.
-    - disconnect: Override to use a different transport mechanism. Uses :libcluster defaults otherwise.
-    - list_nodes: Override to use a different transport mechanism. Uses :libcluster defaults otherwise.
-    - poll_interval: poll the dns server on this interval. Defaults to 5_000
+    - connect: Override to use a different transport mechanism. Uses `:libcluster` defaults otherwise.
+    - disconnect: Override to use a different transport mechanism. Uses `:libcluster` defaults otherwise.
+    - list_nodes: Override to use a different transport mechanism. Uses `:libcluster` defaults otherwise.
+    - poll_interval: poll the dns server on this interval. Defaults to `5_000`
   """
 
   @default_poll_interval 5_000
+
+  @type t :: %__MODULE__{
+          topology: atom,
+          query: String.t(),
+          dns_client: atom,
+          node_sname: String.t(),
+          connect: {:atom, :atom, list},
+          disconnect: {:atom, :atom, list},
+          list_nodes: {:atom, :atom, list},
+          poll_interval: integer
+        }
 
   defstruct [
     :topology,
@@ -25,6 +36,10 @@ defmodule Caravan.Cluster.Config do
     :poll_interval
   ]
 
+  @doc """
+  Takes a `Cluster.Strategy.State` and returns a Config struct
+  """
+  @spec new(state :: Cluster.Strategy.State.t()) :: t()
   def new(%Cluster.Strategy.State{
         topology: topo,
         connect: connect,

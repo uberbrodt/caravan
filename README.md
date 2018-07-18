@@ -3,18 +3,21 @@
 Tools for running Distributed Elixir/Erlang with Nomad and Consul
 
 The built-in Erlang distribution mechanisms are prefaced on using the Erlang
-Port Mapper Daemon, a process that runs on each box with an Erlang node and
-assigns it a port. On startup you feed your node with a list of hosts to
-connect to or connect manually in your application code. While this method
-can work in some cloud environments, cloud scheduling technologies such as
-Kubernetes or Nomad make it very inflexible and error prone.
+Port Mapper Daemon(EPMD), a process that is started with the VM and communicates with 
+remote EPMD instances to determine what ports it's listening on.
+While this method can work in some cloud environments, cloud scheduling technologies such as
+Kubernetes or Nomad tend to make specific, random port assignments. Also, the
+built-in method for forming a cluster is to use a plaintext .hosts file with
+node names, which is very difficult to make work in a dynamic environment where
+node membership can change frequently.
 
 There are several libraries and strategies for using the Kubernetes API to
 build a distributed cluster, but Consul provides us with a clean DNS api to
-retrieve information, while Nomad handles monitoring and scheduling services.
+retrieve information, and works with many different kinds of container
+schedulers (Nomad, Mesos, etc).
 
 Caravan is split into two parts: The first is a set of modules that remove the
-need for `epmd` by determing node ports by the node name. The idea and much of
+need for `epmd` by determining node ports from the node name. The idea and much of
 the code is from the excellent article [Erlang (and Elixir) distribution
 without
 epmd](https://www.erlang-solutions.com/blog/erlang-and-elixir-distribution-without-epmd.html).
@@ -27,13 +30,10 @@ Consul.
 
 View extended documentation on [Hex](https://hexdocs.pm/caravan/0.5.0).
 
-**Note:** Caravan is still pre 1.0, so there may be breaking changes until
-that time.
-
 ## Installation
 
 ```elixir
-{:caravan, "~> 0.5.0"},
+{:caravan, "~> 1.0.0"},
 ```
 
 

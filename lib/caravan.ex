@@ -5,11 +5,13 @@ defmodule Caravan do
   # Caravan
 
   The built-in Erlang distribution mechanisms are prefaced on using the Erlang
-  Port Mapper Daemon, a process that runs on each box with an Erlang node and
-  assigns it a port. On startup you feed your node with a list of hosts to
-  connect to or connect manually in your application code. While this method
-  can work in some cloud environments, cloud scheduling technologies such as
-  Kubernetes or Nomad make it very inflexible and error prone.
+  Port Mapper Daemon(EPMD), a process that is started with the VM and communicates with
+  remote EPMD instances to determine what ports to send data on.
+  While this method can work in some cloud environments, container scheduling technologies make it
+  difficult to pick a single port to use globally or to run multiple processes in a continer.
+  Also, the built-in method for forming a cluster is to use a plaintext .hosts file with
+  resolvable node names, which is very difficult to make work in a dynamic environment where
+  nodes can leave a cluster frequently.
 
   There are several libraries and strategies for using the Kubernetes API to
   build a distributed cluster, but Consul provides us with a clean DNS api to

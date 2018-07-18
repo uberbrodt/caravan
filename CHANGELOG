@@ -1,6 +1,15 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0] - 2018-07-17
+- Upgraded to OTP 21 and libcluster 3.0, which introduced some breaking changes
+
+- Removed :nameservers option because in actuality, you need to configure DNS
+  with erl_inetc, or you're configuring DNS at the OS level.
+
+- Changed some option names to be less Consul or Nomad specific.
+
+- Made DnsClient a behaviour.
+
 
 ## [0.6.0] - 2018-03-29
 - no longer set 127.0.0.1 as local DNS. This now defaults Caravan to os/erts defaults.
