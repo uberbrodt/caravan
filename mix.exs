@@ -32,6 +32,7 @@ defmodule Caravan.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:credo, "~> 0.10.0", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.19-rc", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test},
       {:libcluster, "~> 3.0", optional: true},
