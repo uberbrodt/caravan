@@ -16,18 +16,27 @@ defmodule Caravan.Distribution.SuperSupervisor do
     if processes == nil, do: raise(":processes cannot be nil")
 
     process_supervisor_name = :"#{base_name}.ProcessSupervisor"
-    monitor_name = :"#{base_name}.Monitor"
 
-    children = [
-      {DynamicSupervisor, strategy: :one_for_one, name: process_supervisor_name},
-      {Monitor,
-       [
-         process_specs: processes,
-         base_name: base_name,
-         name: monitor_name,
-         process_supervisor: process_supervisor_name
-       ]}
-    ]
+    # IO.inspect(processes)
+
+    monitors =
+      Enum.map(processes, fn x ->
+        Supervisor.child_spec(
+          {Monitor,
+           [
+             process_spec: x,
+             base_name: base_name,
+             name: :"#{base_name}.#{x.name}.Monitor",
+             process_supervisor: process_supervisor_name
+           ]},
+          id: :"#{base_name}.#{x.name}.Monitor"
+        )
+      end)
+
+    children =
+      [
+        {DynamicSupervisor, strategy: :one_for_one, name: process_supervisor_name}
+      ] ++ monitors
 
     Supervisor.init(children, strategy: :one_for_all)
   end
