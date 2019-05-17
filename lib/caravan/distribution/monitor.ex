@@ -43,6 +43,8 @@ defmodule Caravan.Distribution.Monitor do
       ) do
     lock_id = {id, Node.self()}
 
+    :global.sync()
+
     :global.trans(lock_id, fn ->
       case :global.whereis_name(process_name) do
         :undefined ->
@@ -54,6 +56,7 @@ defmodule Caravan.Distribution.Monitor do
 
             :no ->
               Logger.warn("Process was started outside of :global.trans. Returning that process...")
+              :ok = DynamicSupervisor.terminate_child(process_supervisor, pid)
               :global.whereis_name(process_name)
           end
 
