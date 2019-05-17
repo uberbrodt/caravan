@@ -4,8 +4,12 @@ defmodule Caravan.Mixfile do
   def project do
     [
       app: :caravan,
+      aliases: [
+        test: "test --no-start"
+      ],
       version: "1.0.0",
       elixir: "~> 1.6",
+      elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
@@ -32,17 +36,29 @@ defmodule Caravan.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.19-rc", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.8", only: :test},
+      {:ex_doc, "~> 0.19", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.11.1", only: :test},
+      {:xxhash, "~> 0.2.1"},
       {:libcluster, "~> 3.0", optional: true},
       {:recon, "~> 2.3", optional: true},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev], runtime: false},
+      {:local_cluster, "~> 1.0", only: [:test]}
     ]
   end
 
   defp docs do
     [main: Caravan]
   end
+
+
+  defp elixirc_paths(:test) do
+    [
+      "lib",
+      "test/support"
+    ]
+  end
+
+  defp elixirc_paths(_), do: ["lib"]
 
   defp package do
     [
