@@ -83,6 +83,9 @@ defmodule Caravan.Registry.Monitor do
           debug(fn -> "Process #{i(state.name)} should be moved to #{i(target_node)}" end)
           Process.exit(pid, {:shutdown, {:move_node, target_node}})
         end
+      :undefined ->
+        warn(":check_process_location not found #{i(state.name)}")
+        nil
     end
     state.callback.({:check_process_location, {Node.self(), state.name()}})
 
@@ -106,7 +109,7 @@ defmodule Caravan.Registry.Monitor do
           pid
 
         :undefined ->
-          debug(fn -> "Could not track process #{state.name}" end)
+          warn(fn -> "Could not track process #{state.name}" end)
           Process.send_after(self(), {:track_moved_process, attempt+1}, 30_000)
           nil
       end
@@ -124,7 +127,7 @@ defmodule Caravan.Registry.Monitor do
       state.callback.({:moving_node_exit, {Node.self(), target_node}})
       {:noreply, %{state | pid: pid}}
     else
-      Process.send_after(self(), :track_moved_process, 30_000)
+      Process.send_after(self(), {:track_moved_process, 0}, 30_000)
       {:noreply, state}
     end
   end

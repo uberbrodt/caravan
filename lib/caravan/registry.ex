@@ -8,11 +8,8 @@ defmodule Caravan.Registry do
   alias Caravan.Registry.Monitor
   ### :via callbacks
 
-  @doc false
-  def whereis_name({_registry, key}), do: whereis_name(key)
-
-  def whereis_name(key) do
-    :global.whereis_name(key)
+  def whereis_name(name) do
+    :global.whereis_name(name)
   end
 
   @doc false
