@@ -76,8 +76,9 @@ defmodule Caravan.Registry.Monitor do
     Process.send_after(self(), :check_process_location, 60_000)
     case Caravan.Registry.whereis_name(state.name) do
       pid when is_pid(pid) ->
+        nodes = [Node.self() | Node.list()] |> Enum.sort()
         process_node = :erlang.node(pid)
-        target_node = determine_node_to_run_on(state.name, [Node.self() | Node.list()])
+        target_node = determine_node_to_run_on(state.name,nodes)
 
         if process_node != target_node do
           debug(fn -> "Process #{i(state.name)} should be moved to #{i(target_node)}" end)
@@ -109,7 +110,7 @@ defmodule Caravan.Registry.Monitor do
           pid
 
         :undefined ->
-          warn(fn -> "Could not track process #{i(state.name)}" end)
+          warn(fn -> "Could not track process #{i(state.name)}. Attempt: #{attempt}" end)
           Process.send_after(self(), {:track_moved_process, attempt+1}, 30_000)
           nil
       end
