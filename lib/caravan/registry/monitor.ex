@@ -109,7 +109,7 @@ defmodule Caravan.Registry.Monitor do
           pid
 
         :undefined ->
-          warn(fn -> "Could not track process #{state.name}" end)
+          warn(fn -> "Could not track process #{i(state.name)}" end)
           Process.send_after(self(), {:track_moved_process, attempt+1}, 30_000)
           nil
       end
@@ -134,7 +134,7 @@ defmodule Caravan.Registry.Monitor do
 
   @impl GenServer
   def handle_info({:EXIT, old_pid, reason} = exit, state) when reason in [:noconnection, :noproc] do
-    debug(fn -> "Got EXIT #{i(reason)} for  #{state.name}[#{i(old_pid)}]. Restarting..." end)
+    debug(fn -> "Got EXIT #{i(reason)} for  #{i(state.name)}[#{i(old_pid)}]. Restarting..." end)
     state.callback.({:caught_exit, exit})
     pid = start_process(state.name, state.mfa, state.callback)
     {:noreply, %{state | pid: pid}}
