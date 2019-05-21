@@ -139,7 +139,7 @@ defmodule Caravan.Registry.Monitor do
 
   @impl GenServer
   def handle_info({:EXIT, old_pid, reason} = exit, state) do
-    debug(fn -> "Got unhandled EXIT #{i(reason)} #{state.name}  #{i(old_pid)}" end)
+    debug(fn -> "Got unhandled EXIT #{i(reason)} #{i(state.name)}  #{i(old_pid)}" end)
     state.callback.({:caught_exit, exit})
     {:stop, reason, state}
   end

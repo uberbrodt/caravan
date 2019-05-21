@@ -45,8 +45,8 @@ defmodule Caravan.RegistryTest do
       assert_receive({:caught_exit, {:EXIT, ^pid1, :noconnection}}, 5_000)
       assert_receive({:caught_exit, {:EXIT, ^pid2, :noconnection}}, 5_000)
 
-      assert_receive({:started_process, {^node2, "permanent_example", restarted_pid1}}, 5_000)
-      assert_receive({:started_process, {^node2, "transient_example", restarted_pid2}}, 5_000)
+      assert_receive({:started_process, {_, "permanent_example", restarted_pid1}}, 5_000)
+      assert_receive({:started_process, {_, "transient_example", restarted_pid2}}, 5_000)
 
       assert Caravan.ExampleServer.check("permanent_example") == {:ok, restarted_pid1}
     end
