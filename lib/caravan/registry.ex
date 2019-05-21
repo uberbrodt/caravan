@@ -8,11 +8,8 @@ defmodule Caravan.Registry do
   alias Caravan.Registry.Monitor
   ### :via callbacks
 
-  @doc false
-  def whereis_name({_registry, key}), do: whereis_name(key)
-
-  def whereis_name(key) do
-    :global.whereis_name(key)
+  def whereis_name(name) do
+    :global.whereis_name(name)
   end
 
   @doc false
@@ -25,16 +22,12 @@ defmodule Caravan.Registry do
   end
 
   @doc false
-  def send({_registry, key}, msg) do
-    :global.send(key, msg)
-  end
-
   def send(key, msg) do
     :global.send(key, msg)
   end
 
   @doc false
-  def unregister_name({_registry, key}) do
+  def unregister_name(key) do
     :global.unregister_name(key)
   end
 
@@ -50,8 +43,8 @@ defmodule Caravan.Registry do
   This is because your Supervisor will actually be starting a `Caravan.Registry.Monitor` in the
   that will then start your actual process (via the MFA)
   """
-  def start_link(name, {m,f,a} , opts \\ []) do
-    Monitor.start_link(name, {m,f,a}, opts)
+  def start_link(name, {m, f, a}, opts \\ []) do
+    Monitor.start_link(name, {m, f, a}, opts)
   end
 
   @doc """
@@ -60,7 +53,8 @@ defmodule Caravan.Registry do
   @spec register(name :: term) :: {:ok, pid} | {:error, :could_not_register}
   def register(name) do
     pid = self()
-    case :global.register_name(name, pid) do
+
+    case :global.register_name(name, pid, &:global.random_notify_name/3) do
       :yes -> {:ok, pid}
       :no -> {:error, :could_not_register}
     end

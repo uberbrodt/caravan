@@ -37,7 +37,7 @@ defmodule Caravan.Mixfile do
   defp deps do
     [
       {:ex_doc, "~> 0.19", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.11.1", only: :test},
+      {:excoveralls, "~> 0.11.1", only: [:dev, :test]},
       {:xxhash, "~> 0.2.1"},
       {:libcluster, "~> 3.0", optional: true},
       {:recon, "~> 2.3", optional: true},
@@ -49,7 +49,6 @@ defmodule Caravan.Mixfile do
   defp docs do
     [main: Caravan]
   end
-
 
   defp elixirc_paths(:test) do
     [
