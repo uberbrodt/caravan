@@ -3,12 +3,11 @@ defmodule Caravan.RegistryTest do
   use ExUnit.Case, async: true
   alias Caravan.ExampleServer
 
-
   describe "start_link/2" do
     test "starts process" do
       {:ok, pid} = ExampleServer.start_link(name: "foo")
       assert is_pid(pid) == true
-      assert :global.registered_names != []
+      assert :global.registered_names() != []
       assert is_pid(:global.whereis_name("foo")) == true
     end
 
@@ -27,7 +26,7 @@ defmodule Caravan.RegistryTest do
 
       :ok = ExampleServer.crash(Caravan.Registry.via_tuple(name))
       assert_receive({:caught_exit, {:EXIT, ^pid, :crashed}}, 5_000)
-      assert_receive({:DOWN, ^ref, :process,  ^monitor_pid, :crashed}, 5_000)
+      assert_receive({:DOWN, ^ref, :process, ^monitor_pid, :crashed}, 5_000)
 
       assert Process.alive?(monitor_pid) == false
       assert Process.alive?(pid) == false
@@ -90,5 +89,4 @@ defmodule Caravan.RegistryTest do
       assert transient_pid == pid2
     end
   end
-
 end

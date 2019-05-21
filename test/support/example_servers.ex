@@ -1,14 +1,15 @@
 defmodule Caravan.Test.Cluster do
-
   def start_cluster(count, test_pid) do
-      nodes = LocalCluster.start_nodes("my-caravan", count)
+    nodes = LocalCluster.start_nodes("my-caravan", count)
 
-      IO.inspect(nodes, label: "nodes")
-      for node <- nodes do
-        :pong = Node.ping(node)
-        {:ok, _} = setup_node(node, test_pid)
-      end
-      setup_node(Node.self(), test_pid)
+    IO.inspect(nodes, label: "nodes")
+
+    for node <- nodes do
+      :pong = Node.ping(node)
+      {:ok, _} = setup_node(node, test_pid)
+    end
+
+    setup_node(Node.self(), test_pid)
 
     nodes
   end
@@ -17,14 +18,10 @@ defmodule Caravan.Test.Cluster do
     rpc(node, Caravan.ExampleSupervisor, :start_link, [[test_pid: test_pid]])
   end
 
-
   def rpc(node, module, fun, args) do
     :rpc.block_call(node, module, fun, args)
   end
-
 end
-
-
 
 defmodule Caravan.ExampleSupervisor do
   use Supervisor
@@ -55,7 +52,11 @@ defmodule Caravan.ExampleServer do
   def start_link(args) do
     name = Caravan.Registry.via_tuple(args[:name])
 
-    Caravan.Registry.start_link(args[:name], {GenServer, :start_link, [__MODULE__, args, [name: name]]}, args)
+    Caravan.Registry.start_link(
+      args[:name],
+      {GenServer, :start_link, [__MODULE__, args, [name: name]]},
+      args
+    )
   end
 
   def crash(name) do
@@ -81,7 +82,6 @@ defmodule Caravan.ExampleServer do
 
   @impl GenServer
   def handle_call(:status, _from, state) do
-
     {:reply, {:ok, self()}, state}
   end
 

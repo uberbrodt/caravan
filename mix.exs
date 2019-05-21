@@ -50,7 +50,6 @@ defmodule Caravan.Mixfile do
     [main: Caravan]
   end
 
-
   defp elixirc_paths(:test) do
     [
       "lib",

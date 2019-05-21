@@ -43,8 +43,8 @@ defmodule Caravan.Registry do
   This is because your Supervisor will actually be starting a `Caravan.Registry.Monitor` in the
   that will then start your actual process (via the MFA)
   """
-  def start_link(name, {m,f,a} , opts \\ []) do
-    Monitor.start_link(name, {m,f,a}, opts)
+  def start_link(name, {m, f, a}, opts \\ []) do
+    Monitor.start_link(name, {m, f, a}, opts)
   end
 
   @doc """
@@ -53,6 +53,7 @@ defmodule Caravan.Registry do
   @spec register(name :: term) :: {:ok, pid} | {:error, :could_not_register}
   def register(name) do
     pid = self()
+
     case :global.register_name(name, pid) do
       :yes -> {:ok, pid}
       :no -> {:error, :could_not_register}
@@ -85,5 +86,4 @@ defmodule Caravan.Registry do
   def unregister(name) do
     :global.unregister_name(name)
   end
-
 end
