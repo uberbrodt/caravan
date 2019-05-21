@@ -74,20 +74,23 @@ defmodule Caravan.Registry.Monitor do
   @impl GenServer
   def handle_info(:check_process_location, state) do
     Process.send_after(self(), :check_process_location, 60_000)
+
     case Caravan.Registry.whereis_name(state.name) do
       pid when is_pid(pid) ->
         nodes = [Node.self() | Node.list()] |> Enum.sort()
         process_node = :erlang.node(pid)
-        target_node = determine_node_to_run_on(state.name,nodes)
+        target_node = determine_node_to_run_on(state.name, nodes)
 
         if process_node != target_node do
           debug(fn -> "Process #{i(state.name)} should be moved to #{i(target_node)}" end)
           Process.exit(pid, {:shutdown, {:move_node, target_node}})
         end
+
       :undefined ->
         warn(":check_process_location not found #{i(state.name)}")
         nil
     end
+
     state.callback.({:check_process_location, {Node.self(), state.name()}})
 
     {:noreply, state}
@@ -111,7 +114,7 @@ defmodule Caravan.Registry.Monitor do
 
         :undefined ->
           warn(fn -> "Could not track process #{i(state.name)}. Attempt: #{attempt}" end)
-          Process.send_after(self(), {:track_moved_process, attempt+1}, 30_000)
+          Process.send_after(self(), {:track_moved_process, attempt + 1}, 30_000)
           nil
       end
 
@@ -123,7 +126,6 @@ defmodule Caravan.Registry.Monitor do
     debug(fn -> "Got message to move #{i(state.name)} to #{i(target_node)}" end)
 
     if target_node == Node.self() do
-
       pid = start_process(state.name, state.mfa, state.callback)
       state.callback.({:moving_node_exit, {Node.self(), target_node}})
       {:noreply, %{state | pid: pid}}
@@ -134,7 +136,8 @@ defmodule Caravan.Registry.Monitor do
   end
 
   @impl GenServer
-  def handle_info({:EXIT, old_pid, reason} = exit, state) when reason in [:noconnection, :noproc] do
+  def handle_info({:EXIT, old_pid, reason} = exit, state)
+      when reason in [:noconnection, :noproc, :killed] do
     debug(fn -> "Got EXIT #{i(reason)} for  #{i(state.name)}[#{i(old_pid)}]. Restarting..." end)
     state.callback.({:caught_exit, exit})
     pid = start_process(state.name, state.mfa, state.callback)
@@ -159,8 +162,11 @@ defmodule Caravan.Registry.Monitor do
 
       {:error, {:already_started, pid}} ->
         callback.({:already_started, {Node.self(), name, pid}})
-        debug(fn -> "Linking existing process #{inspect(name)} [#{inspect(pid)}] on #{Node.self()}"
+
+        debug(fn ->
+          "Linking existing process #{inspect(name)} [#{inspect(pid)}] on #{Node.self()}"
         end)
+
         Process.link(pid)
         pid
     end

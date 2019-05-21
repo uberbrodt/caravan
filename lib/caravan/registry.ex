@@ -22,16 +22,12 @@ defmodule Caravan.Registry do
   end
 
   @doc false
-  def send({_registry, key}, msg) do
-    :global.send(key, msg)
-  end
-
   def send(key, msg) do
     :global.send(key, msg)
   end
 
   @doc false
-  def unregister_name({_registry, key}) do
+  def unregister_name(key) do
     :global.unregister_name(key)
   end
 
@@ -89,4 +85,5 @@ defmodule Caravan.Registry do
   def unregister(name) do
     :global.unregister_name(name)
   end
+
 end
