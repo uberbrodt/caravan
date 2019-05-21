@@ -57,11 +57,10 @@ defmodule Caravan.RegistryTest do
     end
 
     test "moves process to ideal node" do
-      [node1, node2] = Caravan.Test.Cluster.start_cluster(2, self())
+      [node1, _, _, _, node5] = Caravan.Test.Cluster.start_cluster(5, self())
 
       assert_receive({:started_process, {^node1, "permanent_example", orig_pid}}, 5_000)
-      IO.inspect(orig_pid, label: "permanent_example pid")
-      assert_receive({:already_started, {^node2, "permanent_example", _}}, 5_000)
+      assert_receive({:already_started, {^node5, "permanent_example", _}}, 5_000)
       assert :erlang.node(orig_pid) == node1
 
       assert_receive({:moving_node_exit, {target_node, target_node}}, 40_000)

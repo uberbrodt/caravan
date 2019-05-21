@@ -2,8 +2,6 @@ defmodule Caravan.Test.Cluster do
   def start_cluster(count, test_pid) do
     nodes = LocalCluster.start_nodes("my-caravan", count)
 
-    IO.inspect(nodes, label: "nodes")
-
     for node <- nodes do
       :pong = Node.ping(node)
       {:ok, _} = setup_node(node, test_pid)
@@ -87,7 +85,6 @@ defmodule Caravan.ExampleServer do
 
   @impl GenServer
   def handle_cast(:crash_server, state) do
-    IO.puts("Got crash")
     {:stop, :crashed, state}
   end
 
