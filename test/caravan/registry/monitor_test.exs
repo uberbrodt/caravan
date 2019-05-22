@@ -16,7 +16,4 @@ defmodule Caravan.Registry.MonitorTest do
 
     assert_receive({:started_process, {^node, ^name, _}}, 5_000)
   end
-
-  def start_link(name, mfa) do
-  end
 end

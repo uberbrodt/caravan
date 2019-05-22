@@ -144,7 +144,7 @@ defmodule Caravan.Registry.Monitor do
 
   @impl GenServer
   def handle_info({:EXIT, old_pid, reason} = exit, state)
-      when reason in [:noconnection, :noproc, :killed] do
+      when reason in [:noconnection, :noproc] do
     debug(fn -> "Got EXIT #{i(reason)} for  #{i(state.name)}[#{i(old_pid)}]. Restarting..." end)
     state.callback.({:caught_exit, exit})
     pid = start_process(state.name, state.mfa, state.callback)
