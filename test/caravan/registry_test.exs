@@ -88,7 +88,9 @@ defmodule Caravan.RegistryTest do
       assert_receive({:started_process, {_, "permanent_example", restarted_pid1}}, 5_000)
       assert_receive({:started_process, {_, "transient_example", restarted_pid2}}, 5_000)
 
-      assert Caravan.ExampleServer.check("permanent_example") == {:ok, restarted_pid1}
+      {:ok, restarted_pid} = Caravan.ExampleServer.check("permanent_example")
+      pid = Caravan.Registry.ConflictHandler.get_child_pid(Registry.via_tuple("permanent_example"))
+      assert restarted_pid == pid
     end
 
     test "checks to see if process is running on it's ideal node" do

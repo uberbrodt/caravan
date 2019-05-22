@@ -2,7 +2,10 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :logger, level: :info
+config :logger, level: :debug
+
+config :logger, :console,
+  metadata: [:pid]
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

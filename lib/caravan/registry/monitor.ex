@@ -143,10 +143,23 @@ defmodule Caravan.Registry.Monitor do
   end
 
   @impl GenServer
+  def handle_info({:EXIT, deadpid, {:shutdown, :global_name_conflict}}, state) do
+    debug(fn ->
+      "Got shutdown global name conflict #{i(state.name)} [#{i(deadpid)}], track new process"
+    end)
+
+    state.callback.({:caught_global_name_conflict, Node.self(), state.name})
+
+    pid = start_process(state.name, state.mfa, state.callback)
+    {:noreply, %{state | pid: pid}}
+  end
+
+  @impl GenServer
   def handle_info({:EXIT, old_pid, reason} = exit, state)
       when reason in [:noconnection, :noproc] do
     debug(fn -> "Got EXIT #{i(reason)} for  #{i(state.name)}[#{i(old_pid)}]. Restarting..." end)
     state.callback.({:caught_exit, exit})
+
     pid = start_process(state.name, state.mfa, state.callback)
     {:noreply, %{state | pid: pid}}
   end
@@ -155,15 +168,19 @@ defmodule Caravan.Registry.Monitor do
   def handle_info({:EXIT, old_pid, reason} = exit, state) do
     debug(fn -> "Got unhandled EXIT #{i(reason)} #{i(state.name)}  #{i(old_pid)}" end)
     state.callback.({:caught_exit, exit})
+
     {:stop, reason, state}
   end
 
   ## End GenServer callbacks
 
-  defp start_process(name, {m, f, a}, callback) do
-    case apply(m, f, a) do
+  defp start_process(name, {_, _, _} = mfa, callback) do
+    case Caravan.Registry.ConflictHandler.start_link(name, mfa) do
       {:ok, pid} ->
-        debug(fn -> "Started process #{inspect(name)} [#{inspect(pid)}] on #{Node.self()}" end)
+        debug(fn ->
+          "Started ConflictHandler #{inspect(name)} [#{inspect(pid)}] on #{Node.self()}"
+        end)
+
         callback.({:started_process, {Node.self(), name, pid}})
         pid
 
@@ -171,7 +188,7 @@ defmodule Caravan.Registry.Monitor do
         callback.({:already_started, {Node.self(), name, pid}})
 
         debug(fn ->
-          "Linking existing process #{inspect(name)} [#{inspect(pid)}] on #{Node.self()}"
+          "Linking existing ConflictHandler #{inspect(name)} [#{inspect(pid)}] on #{Node.self()}"
         end)
 
         Process.link(pid)
