@@ -46,15 +46,10 @@ end
 
 defmodule Caravan.ExampleServer do
   use GenServer
+  require Logger
 
   def start_link(args) do
-    name = Caravan.Registry.via_tuple(args[:name])
-
-    Caravan.Registry.start_link(
-      args[:name],
-      {GenServer, :start_link, [__MODULE__, args, [name: name]]},
-      args
-    )
+    Caravan.Registry.start_link(args[:name], {GenServer, :start_link, [__MODULE__, args, []]}, args)
   end
 
   def crash(name) do

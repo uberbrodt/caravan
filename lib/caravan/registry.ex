@@ -54,7 +54,7 @@ defmodule Caravan.Registry do
   def register(name) do
     pid = self()
 
-    case :global.register_name(name, pid) do
+    case :global.register_name(name, pid, &:global.random_notify_name/3) do
       :yes -> {:ok, pid}
       :no -> {:error, :could_not_register}
     end
