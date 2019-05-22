@@ -2,6 +2,47 @@ defmodule Caravan.RegistryTest do
   @moduledoc false
   use ExUnit.Case, async: true
   alias Caravan.ExampleServer
+  alias Caravan.Registry
+
+  describe "lookup/1" do
+    test "returns [{pid, nil}] when name is registered" do
+      test_pid = self()
+      name = "foo"
+      Registry.register(name)
+      assert Registry.lookup(name) == [{test_pid, nil}]
+    end
+
+    test "returns [] when name is not registered" do
+      assert Registry.lookup("foo") == []
+    end
+  end
+
+  describe "unregister/1" do
+    test "returns :ok when pid registered" do
+      name = "foo"
+      Registry.register(name)
+      assert Registry.unregister(name) == :ok
+    end
+
+    test "reutrns :ok when pid is unregistered" do
+      name = "foo"
+      assert Registry.unregister(name) == :ok
+    end
+  end
+
+  describe "unregister_name/1" do
+    test "returns :ok when pid registered" do
+      name = "foo"
+      Registry.register(name)
+      assert Registry.unregister_name(name) == :ok
+    end
+
+    test "reutrns :ok when pid is unregistered" do
+      name = "foo"
+      assert Registry.unregister_name(name) == :ok
+    end
+
+  end
 
   describe "start_link/2" do
     test "starts process" do
@@ -57,16 +98,19 @@ defmodule Caravan.RegistryTest do
     end
 
     test "moves process to ideal node" do
+      name = "permanent_example"
       [node1, _, _, _, node5] = Caravan.Test.Cluster.start_cluster(5, self())
 
-      assert_receive({:started_process, {^node1, "permanent_example", orig_pid}}, 5_000)
-      assert_receive({:already_started, {^node5, "permanent_example", _}}, 5_000)
+      assert_receive({:started_process, {^node1, ^name, orig_pid}}, 5_000)
+      assert_receive({:already_started, {^node5, ^name, _}}, 5_000)
       assert :erlang.node(orig_pid) == node1
 
       assert_receive({:moving_node_exit, {target_node, target_node}}, 40_000)
-      assert_receive({:started_process, {^target_node, "permanent_example", new_pid}}, 5_000)
+      assert_receive({:started_process, {^target_node, ^name, new_pid}}, 5_000)
 
-      looked_up_pid = Caravan.Registry.whereis_name("permanent_example")
+      assert_receive({:track_moved_process, {^node1, :found, ^name, ^new_pid}}, 120_000)
+
+      looked_up_pid = Caravan.Registry.whereis_name(name)
       assert looked_up_pid == new_pid
       assert :erlang.node(new_pid) == target_node
     end
