@@ -25,6 +25,13 @@ defmodule Caravan.Registry.Monitor do
     GenServer.call(name, :get_child_pid)
   end
 
+  def start_link(args) do
+    name = args[:name]
+    mfa = args[:mfa]
+    opts = Keyword.get(args, :opts, [])
+    start_link(name, mfa, opts)
+  end
+
   @doc false
   def start_link(name, {_, _, _} = mfa, opts) do
     state = %__MODULE__{name: name, mfa: mfa, opts: opts}
