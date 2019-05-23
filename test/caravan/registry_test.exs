@@ -118,7 +118,7 @@ defmodule Caravan.RegistryTest do
       assert :erlang.node(new_pid) == target_node
     end
 
-    test "transient processes stop" do
+    test "transient processes do not stop" do
       name = "transient_example"
       [node1, node2, node3] = Caravan.Test.Cluster.start_cluster(3, self())
       assert_receive({:started_process, {^node1, "transient_example", pid}}, 5_000)
@@ -129,11 +129,11 @@ defmodule Caravan.RegistryTest do
 
       :ok = ExampleServer.shutdown_normal(child_pid)
 
-      assert_receive({:conflict_handler_caught_exit, {:EXIT, _, :normal}}, 5_000)
-      assert_receive({:caught_exit, {:EXIT, ^pid, :normal}}, 5_000)
+      refute_receive({:conflict_handler_caught_exit, {:EXIT, _, :normal}}, 2_000)
+      refute_receive({:caught_exit, {:EXIT, ^pid, :normal}}, 2_000)
 
       :timer.sleep(1_000)
-      assert Caravan.Registry.whereis_name(name) == :undefined
+      assert is_pid(Caravan.Registry.whereis_name(name)) == true
     end
   end
 

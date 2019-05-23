@@ -27,7 +27,6 @@ defmodule Caravan.Registry.ConflictHandler do
     mfa = Keyword.get(args, :mfa)
     in_pid = Keyword.get(args, :pid)
     callback = Keyword.get(args, :callback, fn _ -> :ok end)
-    Process.flag(:trap_exit, true)
 
     pid =
       if in_pid == nil do
@@ -61,14 +60,6 @@ defmodule Caravan.Registry.ConflictHandler do
   def handle_info({:global_name_conflict, name}, state) do
     Logger.warn("Got global name conflict #{inspect(name)} [#{inspect(self())}]")
     {:stop, {:shutdown, :global_name_conflict}, state}
-  end
-
-  @impl GenServer
-  def handle_info({:EXIT, old_pid, reason} = exit, state) do
-    debug(fn -> "ConflictHandler caught EXIT #{i(reason)} for [#{i(old_pid)}]." end)
-    state.callback.({:conflict_handler_caught_exit, exit})
-
-    {:stop, reason, state}
   end
 
   @impl GenServer
