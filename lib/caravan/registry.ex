@@ -6,6 +6,7 @@ defmodule Caravan.Registry do
   """
 
   alias Caravan.Registry.Monitor
+
   ### :via callbacks
 
   def whereis_name(name) do

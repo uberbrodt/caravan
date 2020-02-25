@@ -61,7 +61,7 @@ defmodule Caravan.ExampleServer do
     GenServer.cast(pid, :shutdown_normal)
   end
 
-  def shutdown_normal(name)  do
+  def shutdown_normal(name) do
     GenServer.cast(Registry.via_tuple(name), :shutdown_normal)
   end
 

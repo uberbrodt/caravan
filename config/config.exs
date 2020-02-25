@@ -4,8 +4,7 @@ use Mix.Config
 
 config :logger, level: :debug
 
-config :logger, :console,
-  metadata: [:pid]
+config :logger, :console, metadata: [:pid]
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this

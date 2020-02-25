@@ -41,7 +41,6 @@ defmodule Caravan.RegistryTest do
       name = "foo"
       assert Registry.unregister_name(name) == :ok
     end
-
   end
 
   describe "start_link/2" do
@@ -78,7 +77,7 @@ defmodule Caravan.RegistryTest do
       [node1, node2] = Caravan.Test.Cluster.start_cluster(2, self())
       assert_receive({:started_process, {^node1, name, pid1}}, 5_000)
       assert_receive({:started_process, {^node1, "transient_example", pid2}}, 5_000)
-      assert_receive({:already_started, {^node2,name, _}}, 5_000)
+      assert_receive({:already_started, {^node2, name, _}}, 5_000)
       assert_receive({:already_started, {^node2, "transient_example", _}}, 5_000)
 
       :ok = LocalCluster.stop_nodes([node1])
@@ -86,7 +85,7 @@ defmodule Caravan.RegistryTest do
       assert_receive({:caught_exit, {:EXIT, ^pid1, :noconnection}}, 5_000)
       assert_receive({:caught_exit, {:EXIT, ^pid2, :noconnection}}, 5_000)
 
-      assert_receive({:started_process, {_,name, restarted_pid1}}, 5_000)
+      assert_receive({:started_process, {_, name, restarted_pid1}}, 5_000)
       assert_receive({:started_process, {_, "transient_example", restarted_pid2}}, 5_000)
 
       {:ok, restarted_pid} = Caravan.ExampleServer.check(name)
