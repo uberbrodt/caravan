@@ -32,11 +32,12 @@ defmodule Caravan.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:ex_doc, "~> 0.19-rc", only: :dev, runtime: false},
-      {:excoveralls, "~> 0.8", only: :test},
-      {:libcluster, "~> 3.0", optional: true},
-      {:recon, "~> 2.3", optional: true},
-      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false}
+      {:ex_doc, "~> 0.37", only: :dev, runtime: false},
+      {:excoveralls, "~> 0.18", only: :test},
+      {:libcluster, "~> 3.5", optional: true},
+      {:recon, "~> 2.5", optional: true},
+      {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
